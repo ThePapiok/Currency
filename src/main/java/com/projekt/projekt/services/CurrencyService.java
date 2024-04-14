@@ -49,7 +49,12 @@ public class CurrencyService {
                 return null;
             }
         }
-        return amount*getExchangeRate(currency);
+        Double exchangeRate = getExchangeRate(currency);
+        if (exchangeRate==null){
+            logger.error("bad currency");
+            return null;
+        }
+        return amount*exchangeRate;
     }
 
     private Double getExchangeRate(String currency){
