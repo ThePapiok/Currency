@@ -23,14 +23,15 @@ public class CurrencyService {
     private final Logger logger = LoggerFactory.getLogger(CurrencyService.class);
 
     private final CurrencyConverter currencyConverter;
+    private RestTemplate restTemplate;
 
     public CurrencyService(CurrencyConverter currencyConverter) {
         this.currencyConverter = currencyConverter;
+        restTemplate = new RestTemplate();
     }
 
     public Double getRealAmount(double amount, String currency) throws JsonProcessingException {
-        if(localDateTime==null || localDateTime.isBefore(localDateTime.plusHours(24))){
-            RestTemplate restTemplate = new RestTemplate();
+        if(localDateTime==null || LocalDateTime.now().isAfter(localDateTime.plusHours(24))){
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Object> httpEntity = new HttpEntity<>(headers);
@@ -44,7 +45,7 @@ public class CurrencyService {
             try {
                 rates = currencyConverter.getList(json.substring(1, json.length()-1));
             }
-            catch (Exception e){
+            catch (JsonProcessingException e){
                 logger.error("jsonMapper - ", e);
                 return null;
             }
@@ -57,12 +58,24 @@ public class CurrencyService {
         return amount*exchangeRate;
     }
 
-    private Double getExchangeRate(String currency){
+    public Double getExchangeRate(String currency){
         for(Rate rate: rates){
             if(rate.getCurrency().equals(currency)){
                 return rate.getRate();
             }
         }
         return null;
+    }
+
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
+    }
+
+    public void setRates(List<Rate> rates) {
+        this.rates = rates;
     }
 }

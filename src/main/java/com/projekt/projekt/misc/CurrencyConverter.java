@@ -18,7 +18,6 @@ public class CurrencyConverter {
     public List<Rate> getList(String json) throws JsonProcessingException {
         List<Rate> list = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        logger.info(objectMapper.readTree(json).asText());
         for(JsonNode jsonNode : objectMapper.readTree(json).get("rates")){
             list.add(new Rate(Double.parseDouble(jsonNode.get("mid").asText()), jsonNode.get("code").asText()));
         }
